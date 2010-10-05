@@ -56,12 +56,21 @@ export CLASSPATH=$(build-classpath $required_jars)
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{_javadir}
-cp -a dist/%{name}-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/%{name}-%{version}.jar
-ln -s %{name}-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/%{name}.jar
+for jar in dist/*.jar; do
+	cp -a $jar $RPM_BUILD_ROOT%{_javadir}
+	basejar=$(basename $jar -%{version}.jar).jar
+	ln -s $(basename $jar) $RPM_BUILD_ROOT%{_javadir}/$basejar
+done
+# FIXME: where?
+cp -a dist/solrj-lib $RPM_BUILD_ROOT%{_javadir}
+
+# war? where
+#cp -a dist/apache-solr-%{version}.war
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%{_javadir}/%{name}*.jar
+%{_javadir}/apache-solr-*.jar
+%{_javadir}/solrj-lib
