@@ -42,12 +42,16 @@ administracyjnym WWW. Działa w kontenerze serwletowym Javy, takim jak
 Tomcat.
 
 %prep
-%setup -q
+%setup -q -n apache-%{name}-%{version}
+
+# remove bindist
+rm -rf dist/*
 
 %build
 required_jars="junit"
 export CLASSPATH=$(build-classpath $required_jars)
-%ant dist
+%ant dist \
+	-Dversion=%{version}
 
 %install
 rm -rf $RPM_BUILD_ROOT
