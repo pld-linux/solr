@@ -1,18 +1,27 @@
 # TODO
+#get-colt:
+#      [get] Getting: http://repo1.maven.org/maven2/colt/colt/1.2.0/colt-1.2.0.jar
+#get-pcj:
+#      [get] Getting: http://repo1.maven.org/maven2/pcj/pcj/1.2/pcj-1.2.jar
+#get-nni:
+#      [get] Getting: http://download.carrot2.org/maven2/org/carrot2/nni/1.0.0/nni-1.0.0.jar
+#get-simple-xml:
+#      [get] Getting: http://mirrors.ibiblio.org/pub/mirrors/maven2/org/simpleframework/simple-xml/1.7.3/simple-xml-1.7.3.jar
 # - package .war
 %include	/usr/lib/rpm/macros.java
 Summary:	Solr - open source enterprise search server
 Summary(pl.UTF-8):	Solr - profesjonalny serwer wyszukiwarki o otwartych źródłach
-Name:		apache-solr
-Version:	1.2.0
+Name:		solr
+Version:	1.4.1
 Release:	0.1
 License:	Apache
 Group:		Development/Languages/Java
-Source0:	http://apache.zone-h.org/lucene/solr/1.2/%{name}-%{version}.tgz
-# Source0-md5:	37725998228d525096ae5a887d046a9d
+Obsoletes:	apache-solr
+Source0:	http://www.apache.org/dist/lucene/solr/%{version}/apache-%{name}-%{version}.tgz
+# Source0-md5:	258a020ed8c3f44e13b09e8ae46a1c84
 URL:		http://lucene.apache.org/solr/
+BuildRequires:	java-junit
 BuildRequires:	jpackage-utils
-BuildRequires:	junit
 BuildRequires:	rpm-javaprov
 BuildRequires:	rpmbuild(macros) >= 1.300
 Requires:	jpackage-utils
@@ -43,7 +52,6 @@ export CLASSPATH=$(build-classpath $required_jars)
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{_javadir}
-
 cp -a dist/%{name}-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/%{name}-%{version}.jar
 ln -s %{name}-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/%{name}.jar
 
