@@ -12,17 +12,17 @@
 #      [get] Getting: http://download.carrot2.org/maven2/org/carrot2/nni/1.0.0/nni-1.0.0.jar
 #get-simple-xml:
 #      [get] Getting: http://mirrors.ibiblio.org/pub/mirrors/maven2/org/simpleframework/simple-xml/1.7.3/simple-xml-1.7.3.jar
-# - package .war
 %include	/usr/lib/rpm/macros.java
 Summary:	Solr - open source enterprise search server
 Summary(pl.UTF-8):	Solr - profesjonalny serwer wyszukiwarki o otwartych źródłach
 Name:		solr
 Version:	1.4.1
-Release:	0.2
+Release:	0.3
 License:	Apache
 Group:		Development/Languages/Java
 Source0:	http://www.apache.org/dist/lucene/solr/%{version}/apache-%{name}-%{version}.tgz
 # Source0-md5:	258a020ed8c3f44e13b09e8ae46a1c84
+Source1:	%{name}-context.xml
 URL:		http://lucene.apache.org/solr/
 BuildRequires:	java-junit
 BuildRequires:	jpackage-utils
@@ -32,6 +32,10 @@ Requires:	jpackage-utils
 Obsoletes:	apache-solr
 BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+%define		webappdir %{_datadir}/%{name}
+%define		libdir    %{webappdir}/WEB-INF/lib
+%define		logdir    %{_var}/log/%{name}
 
 %description
 Solr is an open source enterprise search server based on the Lucene
@@ -73,13 +77,26 @@ done
 # FIXME: where?
 cp -a dist/solrj-lib $RPM_BUILD_ROOT%{_javadir}
 
-# war? where
-#cp -a dist/apache-solr-%{version}.war
+install -d $RPM_BUILD_ROOT%{webappdir}
+cp -a dist/apache-solr-%{version}.war $RPM_BUILD_ROOT%{webappdir}/%{name}.war
+
+# Install tomcat context descriptor
+install -d $RPM_BUILD_ROOT{%{_sysconfdir}/%{name},%{_tomcatconfdir}}
+install %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/tomcat-context.xml
+ln -sf %{_sysconfdir}/%{name}/tomcat-context.xml $RPM_BUILD_ROOT%{_tomcatconfdir}/%{name}.xml
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%postun
+%tomcat_clear_cache %{name}
 
 %files
 %defattr(644,root,root,755)
 %{_javadir}/apache-solr-*.jar
 %{_javadir}/solrj-lib
+
+%dir %{_sysconfdir}/%{name}
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/*.xml
+%{_tomcatconfdir}/%{name}.xml
+%{webappdir}
