@@ -1,3 +1,5 @@
+# NOTES:
+# - http://wiki.apache.org/solr/SolrTomcat
 #
 # Conditional build:
 %bcond_without	tests		# don't build and run tests
@@ -16,14 +18,14 @@
 Summary:	Solr - open source enterprise search server
 Summary(pl.UTF-8):	Solr - profesjonalny serwer wyszukiwarki o otwartych źródłach
 Name:		solr
-Version:	1.4.1
-Release:	0.3
-License:	Apache
+Version:	3.6.0
+Release:	0.1
+License:	Apache v2.0
 Group:		Development/Languages/Java
 Source0:	http://www.apache.org/dist/lucene/solr/%{version}/apache-%{name}-%{version}.tgz
-# Source0-md5:	258a020ed8c3f44e13b09e8ae46a1c84
+# Source0-md5:	ac11ef4408bb015aa3a5eefcb1047aec
 Source1:	%{name}-context.xml
-URL:		http://lucene.apache.org/solr/
+URL:		https://lucene.apache.org/solr/
 BuildRequires:	java-junit
 BuildRequires:	jpackage-utils
 BuildRequires:	rpm-javaprov
@@ -93,6 +95,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
+%doc CHANGES.txt NOTICE.txt README.txt
 %{_javadir}/apache-solr-*.jar
 %{_javadir}/solrj-lib
 
