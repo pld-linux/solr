@@ -1,37 +1,31 @@
+# TODO
+# - build from source, external deps
 # NOTES:
 # - http://wiki.apache.org/solr/SolrTomcat
 #
 # Conditional build:
 %bcond_without	tests		# don't build and run tests
-%bcond_without	source		# don't build source jar
+%bcond_with		source		# don't build source jar
 
-# TODO
-#get-colt:
-#      [get] Getting: http://repo1.maven.org/maven2/colt/colt/1.2.0/colt-1.2.0.jar
-#get-pcj:
-#      [get] Getting: http://repo1.maven.org/maven2/pcj/pcj/1.2/pcj-1.2.jar
-#get-nni:
-#      [get] Getting: http://download.carrot2.org/maven2/org/carrot2/nni/1.0.0/nni-1.0.0.jar
-#get-simple-xml:
-#      [get] Getting: http://mirrors.ibiblio.org/pub/mirrors/maven2/org/simpleframework/simple-xml/1.7.3/simple-xml-1.7.3.jar
 %include	/usr/lib/rpm/macros.java
 Summary:	Solr - open source enterprise search server
 Summary(pl.UTF-8):	Solr - profesjonalny serwer wyszukiwarki o otwartych źródłach
 Name:		solr
 Version:	3.6.0
-Release:	0.1
+Release:	1
 License:	Apache v2.0
 Group:		Development/Languages/Java
 Source0:	http://www.apache.org/dist/lucene/solr/%{version}/apache-%{name}-%{version}.tgz
 # Source0-md5:	ac11ef4408bb015aa3a5eefcb1047aec
 Source1:	%{name}-context.xml
 URL:		https://lucene.apache.org/solr/
-BuildRequires:	java-junit
+#BuildRequires:	java-junit
 BuildRequires:	jpackage-utils
 BuildRequires:	rpm-javaprov
 BuildRequires:	rpmbuild(macros) >= 1.300
 Requires:	jpackage-utils
-Obsoletes:	apache-solr
+Requires:	tomcat
+Obsoletes:	apache-solr < 3.6.0
 BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -70,6 +64,9 @@ export CLASSPATH=$(build-classpath $required_jars)
 
 %install
 rm -rf $RPM_BUILD_ROOT
+
+%if 0
+# TODO: java-solr package
 install -d $RPM_BUILD_ROOT%{_javadir}
 for jar in dist/*.jar; do
 	cp -a $jar $RPM_BUILD_ROOT%{_javadir}
@@ -78,14 +75,18 @@ for jar in dist/*.jar; do
 done
 # FIXME: where?
 cp -a dist/solrj-lib $RPM_BUILD_ROOT%{_javadir}
+%endif
 
 install -d $RPM_BUILD_ROOT%{webappdir}
-cp -a dist/apache-solr-%{version}.war $RPM_BUILD_ROOT%{webappdir}/%{name}.war
+cp -p dist/apache-solr-%{version}.war $RPM_BUILD_ROOT%{webappdir}/%{name}.war
 
 # Install tomcat context descriptor
-install -d $RPM_BUILD_ROOT{%{_sysconfdir}/%{name},%{_tomcatconfdir}}
-install %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/tomcat-context.xml
+install -d $RPM_BUILD_ROOT{%{_sysconfdir}/%{name},%{_sharedstatedir}/%{name}/data,%{_tomcatconfdir}}
+cp -p %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/tomcat-context.xml
 ln -sf %{_sysconfdir}/%{name}/tomcat-context.xml $RPM_BUILD_ROOT%{_tomcatconfdir}/%{name}.xml
+
+cp -a example/solr/conf/* $RPM_BUILD_ROOT%{_sysconfdir}/%{name}
+ln -s %{_sysconfdir}/%{name} $RPM_BUILD_ROOT%{_sharedstatedir}/%{name}/conf
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -96,10 +97,27 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc CHANGES.txt NOTICE.txt README.txt
-%{_javadir}/apache-solr-*.jar
-%{_javadir}/solrj-lib
-
 %dir %{_sysconfdir}/%{name}
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/*.xml
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/*.html
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/*.txt
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/*.conf
+%dir %{_sysconfdir}/%{name}/lang
+%{_sysconfdir}/%{name}/lang/*.txt
+%dir %{_sysconfdir}/%{name}/velocity
+%{_sysconfdir}/%{name}/velocity/*.css
+%{_sysconfdir}/%{name}/velocity/*.js
+%{_sysconfdir}/%{name}/velocity/*.vm
+%dir %{_sysconfdir}/%{name}/xslt
+%{_sysconfdir}/%{name}/xslt/*.xsl
+
 %{_tomcatconfdir}/%{name}.xml
-%{webappdir}
+%dir %{webappdir}
+%{webappdir}/*.war
+%dir %{_sharedstatedir}/%{name}
+%{_sharedstatedir}/%{name}/conf
+%attr(2775,root,servlet) %dir %{_sharedstatedir}/%{name}/data
+
+# -n java-solr
+#%{_javadir}/apache-solr-*.jar
+#%{_javadir}/solrj-lib
