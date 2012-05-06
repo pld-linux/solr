@@ -15,10 +15,12 @@ Version:	3.6.0
 Release:	1
 License:	Apache v2.0
 Group:		Development/Languages/Java
+#Source0:	http://www.apache.org/dist/lucene/solr/%{version}/apache-%{name}-%{version}-src.tgz
 Source0:	http://www.apache.org/dist/lucene/solr/%{version}/apache-%{name}-%{version}.tgz
 # Source0-md5:	ac11ef4408bb015aa3a5eefcb1047aec
 Source1:	%{name}-context.xml
 URL:		https://lucene.apache.org/solr/
+#BuildRequires:	java-ivy >= 2.2.0
 #BuildRequires:	java-junit
 BuildRequires:	jpackage-utils
 BuildRequires:	rpm-javaprov
