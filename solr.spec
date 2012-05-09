@@ -1,5 +1,6 @@
 # TODO
 # - build from source, external deps
+# - split libs in java-solr package to subpackages depending on their usage
 # NOTES:
 # - http://wiki.apache.org/solr/SolrTomcat
 #
@@ -19,13 +20,14 @@ Group:		Development/Languages/Java
 Source0:	http://www.apache.org/dist/lucene/solr/%{version}/apache-%{name}-%{version}.tgz
 # Source0-md5:	ac11ef4408bb015aa3a5eefcb1047aec
 Source1:	%{name}-context.xml
-Source2:	solr.xml
+Source2:	%{name}.xml
 URL:		https://lucene.apache.org/solr/
 #BuildRequires:	java-ivy >= 2.2.0
 #BuildRequires:	java-junit
 BuildRequires:	jpackage-utils
 BuildRequires:	rpm-javaprov
 BuildRequires:	rpmbuild(macros) >= 1.300
+Requires:	java-%{name} = %{version}-%{release}
 Requires:	jpackage-utils
 Requires:	tomcat
 Obsoletes:	apache-solr < 3.6.0
@@ -47,6 +49,25 @@ podświetlaniem dopasowań, pamięcią podręczną, replikacją i interfejsem
 administracyjnym WWW. Działa w kontenerze serwletowym Javy, takim jak
 Tomcat.
 
+%package -n java-%{name}
+Summary:	Solr libraries
+Group:		Libraries/Java
+Requires:	jpackage-utils
+
+%description -n java-%{name}
+Solr libraries:
+- analysis-extras
+- cell
+- clustering
+- core
+- dataimporthandler
+- dataimporthandler-extras
+- langid
+- solrj
+- test-framework
+- uima
+- velocity
+
 %prep
 %setup -q -n apache-%{name}-%{version}
 
@@ -66,22 +87,19 @@ export CLASSPATH=$(build-classpath $required_jars)
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%if 0
-# TODO: java-solr package
+# install .jars
 install -d $RPM_BUILD_ROOT%{_javadir}
-for jar in dist/*.jar; do
-	cp -a $jar $RPM_BUILD_ROOT%{_javadir}
-	basejar=$(basename $jar -%{version}.jar).jar
-	ln -s $(basename $jar) $RPM_BUILD_ROOT%{_javadir}/$basejar
+for a in dist/apache-solr-*.jar; do
+	jar=${a##*/}
+	cp -p dist/$jar $RPM_BUILD_ROOT%{_javadir}
+	ln -s $jar $RPM_BUILD_ROOT%{_javadir}/${jar%%-%{version}.jar}.jar
 done
-# FIXME: where?
-cp -a dist/solrj-lib $RPM_BUILD_ROOT%{_javadir}
-%endif
 
+# install webapp
 install -d $RPM_BUILD_ROOT%{webappdir}
 cp -p dist/apache-solr-%{version}.war $RPM_BUILD_ROOT%{webappdir}/%{name}.war
 
-# Install tomcat context descriptor
+# install tomcat context descriptor
 install -d $RPM_BUILD_ROOT{%{_sysconfdir}/%{name},%{_tomcatconfdir}}
 cp -p %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/tomcat-context.xml
 ln -sf %{_sysconfdir}/%{name}/tomcat-context.xml $RPM_BUILD_ROOT%{_tomcatconfdir}/%{name}.xml
@@ -132,6 +150,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_sysconfdir}/%{name}/example/xslt
 %{_sysconfdir}/%{name}/example/xslt/*.xsl
 
-# -n java-solr
-#%{_javadir}/apache-solr-*.jar
+%files -n java-%{name}
+%defattr(644,root,root,755)
+%{_javadir}/apache-solr-*.jar
 #%{_javadir}/solrj-lib
