@@ -12,13 +12,13 @@
 Summary:	Solr - open source enterprise search server
 Summary(pl.UTF-8):	Solr - profesjonalny serwer wyszukiwarki o otwartych źródłach
 Name:		solr
-Version:	3.6.0
-Release:	2
+Version:	3.6.1
+Release:	1
 License:	Apache v2.0
 Group:		Development/Languages/Java
 #Source0:	http://www.apache.org/dist/lucene/solr/%{version}/apache-%{name}-%{version}-src.tgz
-Source0:	http://www.apache.org/dist/lucene/solr/%{version}/apache-%{name}-%{version}.tgz
-# Source0-md5:	ac11ef4408bb015aa3a5eefcb1047aec
+Source0:	ftp://www.apache.org/dist/lucene/solr/%{version}/apache-%{name}-%{version}.tgz
+# Source0-md5:	9c53599fba77e0480886db74d6463f19
 Source1:	%{name}-context.xml
 Source2:	%{name}.xml
 URL:		https://lucene.apache.org/solr/
@@ -74,6 +74,10 @@ Solr libraries:
 %if %{with source}
 # remove bindist
 rm -rf dist/*
+%else
+# unpack war
+install -d war
+unzip -d war dist/apache-solr-%{version}.war
 %endif
 
 %build
@@ -97,7 +101,7 @@ done
 
 # install webapp
 install -d $RPM_BUILD_ROOT%{webappdir}
-cp -p dist/apache-solr-%{version}.war $RPM_BUILD_ROOT%{webappdir}/%{name}.war
+cp -a war/* $RPM_BUILD_ROOT%{webappdir}
 
 # install tomcat context descriptor
 install -d $RPM_BUILD_ROOT{%{_sysconfdir}/%{name},%{_tomcatconfdir}}
@@ -128,7 +132,16 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/solr.xml
 %{_tomcatconfdir}/%{name}.xml
 %dir %{webappdir}
-%{webappdir}/solr.war
+%{webappdir}/META-INF
+%dir %{webappdir}/WEB-INF
+%dir %{webappdir}/WEB-INF/lib
+%{webappdir}/WEB-INF/lib/*.jar
+%{webappdir}/WEB-INF/web.xml
+%{webappdir}/WEB-INF/weblogic.xml
+%{webappdir}/admin
+%{webappdir}/favicon.ico
+%{webappdir}/index.jsp
+
 %dir %{_sharedstatedir}/%{name}
 %{_sharedstatedir}/%{name}/solr.xml
 
