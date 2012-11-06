@@ -17,7 +17,7 @@ Release:	1
 License:	Apache v2.0
 Group:		Development/Languages/Java
 #Source0:	http://www.apache.org/dist/lucene/solr/%{version}/apache-%{name}-%{version}-src.tgz
-Source0:	ftp://www.apache.org/dist/lucene/solr/%{version}/apache-%{name}-%{version}.tgz
+Source0:	http://www.apache.org/dist/lucene/solr/%{version}/apache-%{name}-%{version}.tgz
 # Source0-md5:	9c53599fba77e0480886db74d6463f19
 Source1:	%{name}-context.xml
 Source2:	%{name}.xml
