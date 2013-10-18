@@ -12,13 +12,12 @@
 Summary:	Solr - open source enterprise search server
 Summary(pl.UTF-8):	Solr - profesjonalny serwer wyszukiwarki o otwartych źródłach
 Name:		solr
-Version:	3.6.2
-Release:	1
+Version:	4.5.0
+Release:	0.1
 License:	Apache v2.0
 Group:		Development/Languages/Java
-#Source0:	http://www.apache.org/dist/lucene/solr/%{version}/apache-%{name}-%{version}-src.tgz
-Source0:	http://www.apache.org/dist/lucene/solr/%{version}/apache-%{name}-%{version}.tgz
-# Source0-md5:	e9c51f51265b070062a9d8ed50b84647
+Source0:	http://www.apache.org/dist/lucene/solr/%{version}/%{name}-%{version}.tgz
+# Source0-md5:	f6d02466e3b64a24a650bc332f6b0dd5
 Source1:	%{name}-context.xml
 Source2:	%{name}.xml
 URL:		https://lucene.apache.org/solr/
@@ -69,7 +68,7 @@ Solr libraries:
 - velocity
 
 %prep
-%setup -q -n apache-%{name}-%{version}
+%setup -q
 
 %if %{with source}
 # remove bindist
@@ -77,7 +76,7 @@ rm -rf dist/*
 %else
 # unpack war
 install -d war
-unzip -d war dist/apache-solr-%{version}.war
+unzip -d war dist/solr-%{version}.war
 %endif
 
 %build
@@ -93,7 +92,7 @@ rm -rf $RPM_BUILD_ROOT
 
 # install .jars
 install -d $RPM_BUILD_ROOT%{_javadir}
-for a in dist/apache-solr-*.jar; do
+for a in dist/solr-*.jar; do
 	jar=${a##*/}
 	cp -p dist/$jar $RPM_BUILD_ROOT%{_javadir}
 	ln -s $jar $RPM_BUILD_ROOT%{_javadir}/${jar%%-%{version}.jar}.jar
@@ -114,9 +113,9 @@ cp -p %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/solr.xml
 ln -s %{_sysconfdir}/%{name}/solr.xml $RPM_BUILD_ROOT%{_sharedstatedir}/%{name}
 
 # setup sample instance
-install -d $RPM_BUILD_ROOT%{_sharedstatedir}/%{name}/example/data
-cp -a example/solr/conf $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/example
-ln -s %{_sysconfdir}/%{name}/example $RPM_BUILD_ROOT%{_sharedstatedir}/%{name}/example/conf
+install -d $RPM_BUILD_ROOT{%{_sharedstatedir}/%{name}/example/data,%{_sysconfdir}/%{name}/example}
+cp -a example/solr/{solr.xml,zoo.cfg} $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/example
+ln -s %{_sysconfdir}/%{name}/example $RPM_BUILD_ROOT%{_sharedstatedir}/%{name}/example
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -138,32 +137,25 @@ rm -rf $RPM_BUILD_ROOT
 %{webappdir}/WEB-INF/lib/*.jar
 %{webappdir}/WEB-INF/web.xml
 %{webappdir}/WEB-INF/weblogic.xml
-%{webappdir}/admin
+%{webappdir}/admin.html
 %{webappdir}/favicon.ico
-%{webappdir}/index.jsp
+%{webappdir}/css
+%{webappdir}/img
+%{webappdir}/js
+%{webappdir}/tpl
 
 %dir %{_sharedstatedir}/%{name}
 %{_sharedstatedir}/%{name}/solr.xml
 
 # sample instance configuration
+%dir %{_sysconfdir}/%{name}/example
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/example/solr.xml
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/example/zoo.cfg
 %attr(750,root,servlet) %dir %{_sharedstatedir}/%{name}/example
 %attr(2775,root,servlet) %dir %{_sharedstatedir}/%{name}/example/data
-%{_sharedstatedir}/%{name}/example/conf
-%dir %{_sysconfdir}/%{name}/example
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/example/*.xml
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/example/*.html
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/example/*.txt
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/example/*.conf
-%dir %{_sysconfdir}/%{name}/example/lang
-%{_sysconfdir}/%{name}/example/lang/*.txt
-%dir %{_sysconfdir}/%{name}/example/velocity
-%{_sysconfdir}/%{name}/example/velocity/*.css
-%{_sysconfdir}/%{name}/example/velocity/*.js
-%{_sysconfdir}/%{name}/example/velocity/*.vm
-%dir %{_sysconfdir}/%{name}/example/xslt
-%{_sysconfdir}/%{name}/example/xslt/*.xsl
+
+   /var/lib/solr/example/example
 
 %files -n java-%{name}
 %defattr(644,root,root,755)
-%{_javadir}/apache-solr-*.jar
-#%{_javadir}/solrj-lib
+%{_javadir}/solr-*.jar
