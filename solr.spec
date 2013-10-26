@@ -13,7 +13,7 @@ Summary:	Solr - open source enterprise search server
 Summary(pl.UTF-8):	Solr - profesjonalny serwer wyszukiwarki o otwartych źródłach
 Name:		solr
 Version:	4.5.0
-Release:	0.1
+Release:	0.2
 License:	Apache v2.0
 Group:		Development/Languages/Java
 Source0:	http://www.apache.org/dist/lucene/solr/%{version}/%{name}-%{version}.tgz
@@ -27,13 +27,15 @@ BuildRequires:	jpackage-utils
 BuildRequires:	rpm-javaprov
 BuildRequires:	rpmbuild(macros) >= 1.300
 Requires:	java-%{name} = %{version}-%{release}
+Requires:	java-slf4j >= 1.6
 Requires:	jpackage-utils
 Requires:	tomcat
 Obsoletes:	apache-solr < 3.6.0
 BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		webappdir %{_datadir}/%{name}
+%define		webappdir	%{_datadir}/%{name}
+%define		_tomcatdir	%{_datadir}/tomcat
 
 %description
 Solr is an open source enterprise search server based on the Lucene
@@ -98,6 +100,13 @@ for a in dist/solr-*.jar; do
 	ln -s $jar $RPM_BUILD_ROOT%{_javadir}/${jar%%-%{version}.jar}.jar
 done
 
+# get logging jars to tomcat to load
+# http://wiki.apache.org/solr/SolrLogging
+install -d $RPM_BUILD_ROOT%{_tomcatdir}/lib
+for jar in slf4j-api.jar jcl-over-slf4j.jar; do
+	ln -s %{_javadir}/$jar $RPM_BUILD_ROOT%{_tomcatdir}/lib
+done
+
 # install webapp
 install -d $RPM_BUILD_ROOT%{webappdir}
 cp -a war/* $RPM_BUILD_ROOT%{webappdir}
@@ -144,6 +153,11 @@ rm -rf $RPM_BUILD_ROOT
 %{webappdir}/js
 %{webappdir}/tpl
 
+# make tomcat load these jars
+# FIXME: how to do this "properly"
+%{_tomcatdir}/lib/jcl-over-slf4j.jar
+%{_tomcatdir}/lib/slf4j-api.jar
+
 %dir %{_sharedstatedir}/%{name}
 %{_sharedstatedir}/%{name}/solr.xml
 
@@ -153,8 +167,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/example/zoo.cfg
 %attr(750,root,servlet) %dir %{_sharedstatedir}/%{name}/example
 %attr(2775,root,servlet) %dir %{_sharedstatedir}/%{name}/example/data
-
-   /var/lib/solr/example/example
 
 %files -n java-%{name}
 %defattr(644,root,root,755)
