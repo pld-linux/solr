@@ -12,12 +12,12 @@
 Summary:	Solr - open source enterprise search server
 Summary(pl.UTF-8):	Solr - profesjonalny serwer wyszukiwarki o otwartych źródłach
 Name:		solr
-Version:	4.5.0
+Version:	4.5.1
 Release:	0.2
 License:	Apache v2.0
 Group:		Development/Languages/Java
 Source0:	http://www.apache.org/dist/lucene/solr/%{version}/%{name}-%{version}.tgz
-# Source0-md5:	f6d02466e3b64a24a650bc332f6b0dd5
+# Source0-md5:	7c8c9fbbade5c119288b06c501fa46b2
 Source1:	%{name}-context.xml
 Source2:	%{name}.xml
 URL:		https://lucene.apache.org/solr/
@@ -124,7 +124,7 @@ ln -s %{_sysconfdir}/%{name}/solr.xml $RPM_BUILD_ROOT%{_sharedstatedir}/%{name}
 # setup sample instance
 install -d $RPM_BUILD_ROOT{%{_sharedstatedir}/%{name}/example/data,%{_sysconfdir}/%{name}/example}
 cp -a example/solr/{solr.xml,zoo.cfg} $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/example
-ln -s %{_sysconfdir}/%{name}/example $RPM_BUILD_ROOT%{_sharedstatedir}/%{name}/example
+ln -s %{_sysconfdir}/%{name}/example $RPM_BUILD_ROOT%{_sharedstatedir}/%{name}/example/conf
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -167,6 +167,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/example/zoo.cfg
 %attr(750,root,servlet) %dir %{_sharedstatedir}/%{name}/example
 %attr(2775,root,servlet) %dir %{_sharedstatedir}/%{name}/example/data
+%{_sharedstatedir}/%{name}/example/conf
 
 %files -n java-%{name}
 %defattr(644,root,root,755)
