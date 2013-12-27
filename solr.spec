@@ -12,12 +12,12 @@
 Summary:	Solr - open source enterprise search server
 Summary(pl.UTF-8):	Solr - profesjonalny serwer wyszukiwarki o otwartych źródłach
 Name:		solr
-Version:	4.5.1
-Release:	3
+Version:	4.6.0
+Release:	1
 License:	Apache v2.0
 Group:		Development/Languages/Java
 Source0:	http://www.apache.org/dist/lucene/solr/%{version}/%{name}-%{version}.tgz
-# Source0-md5:	7c8c9fbbade5c119288b06c501fa46b2
+# Source0-md5:	d79ca3e4f39db24ac6167825a72c5754
 Source1:	%{name}-context.xml
 Source2:	%{name}.xml
 URL:		https://lucene.apache.org/solr/
