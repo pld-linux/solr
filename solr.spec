@@ -27,6 +27,7 @@ BuildRequires:	jpackage-utils
 BuildRequires:	rpm-javaprov
 BuildRequires:	rpmbuild(macros) >= 1.300
 Requires:	java-%{name} = %{version}-%{release}
+Requires:	java-log4j
 Requires:	java-slf4j >= 1.6
 Requires:	jpackage-utils
 Requires:	tomcat
@@ -105,8 +106,10 @@ cp -a war/* $RPM_BUILD_ROOT%{webappdir}
 
 # get logging jars to tomcat to load
 # http://wiki.apache.org/solr/SolrLogging
-for jar in slf4j-api.jar jcl-over-slf4j.jar; do
-	ln -s %{_javadir}/$jar $RPM_BUILD_ROOT%{webappdir}/WEB-INF/lib
+for jar in \
+	log4j jcl-over-slf4j jul-to-slf4j slf4j-api slf4j-log4j12 \
+	; do
+	ln -s %{_javadir}/$jar.jar $RPM_BUILD_ROOT%{webappdir}/WEB-INF/lib
 done
 
 # install tomcat context descriptor
