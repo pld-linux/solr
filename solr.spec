@@ -35,7 +35,6 @@ BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		webappdir	%{_datadir}/%{name}
-%define		_tomcatdir	%{_datadir}/tomcat
 
 %description
 Solr is an open source enterprise search server based on the Lucene
@@ -100,16 +99,15 @@ for a in dist/solr-*.jar; do
 	ln -s $jar $RPM_BUILD_ROOT%{_javadir}/${jar%%-%{version}.jar}.jar
 done
 
-# get logging jars to tomcat to load
-# http://wiki.apache.org/solr/SolrLogging
-install -d $RPM_BUILD_ROOT%{_tomcatdir}/lib
-for jar in slf4j-api.jar jcl-over-slf4j.jar; do
-	ln -s %{_javadir}/$jar $RPM_BUILD_ROOT%{_tomcatdir}/lib
-done
-
 # install webapp
 install -d $RPM_BUILD_ROOT%{webappdir}
 cp -a war/* $RPM_BUILD_ROOT%{webappdir}
+
+# get logging jars to tomcat to load
+# http://wiki.apache.org/solr/SolrLogging
+for jar in slf4j-api.jar jcl-over-slf4j.jar; do
+	ln -s %{_javadir}/$jar $RPM_BUILD_ROOT%{webappdir}/WEB-INF/lib
+done
 
 # install tomcat context descriptor
 install -d $RPM_BUILD_ROOT{%{_sysconfdir}/%{name},%{_tomcatconfdir}}
@@ -152,11 +150,6 @@ rm -rf $RPM_BUILD_ROOT
 %{webappdir}/img
 %{webappdir}/js
 %{webappdir}/tpl
-
-# make tomcat load these jars
-# FIXME: how to do this "properly"
-%{_tomcatdir}/lib/jcl-over-slf4j.jar
-%{_tomcatdir}/lib/slf4j-api.jar
 
 %dir %{_sharedstatedir}/%{name}
 %{_sharedstatedir}/%{name}/solr.xml
