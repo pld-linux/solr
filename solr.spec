@@ -8,7 +8,6 @@
 %bcond_without	tests		# don't build and run tests
 %bcond_with		source		# don't build source jar
 
-%include	/usr/lib/rpm/macros.java
 Summary:	Solr - open source enterprise search server
 Summary(pl.UTF-8):	Solr - profesjonalny serwer wyszukiwarki o otwartych źródłach
 Name:		solr
